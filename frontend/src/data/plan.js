@@ -2,11 +2,12 @@
 // Day index matches JS Date.getDay(): 0=Sun ... 6=Sat
 
 const IMG = {
-  push: "https://images.unsplash.com/photo-1765302755287-e3288ea8fbcb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBwdXNodXAlMjBtYXQlMjBkYXJrfGVufDB8fHx8MTc4NjU2NjUyOXww&ixlib=rb-4.1.0&q=85",
-  pull: "https://images.unsplash.com/photo-1584827386916-b5351d3ba34b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwxfHxyZXNpc3RhbmNlJTIwYmFuZCUyMHdvcmtvdXQlMjBkYXJrfGVufDB8fHx8MTc4NjU2NjUyOXww&ixlib=rb-4.1.0&q=85",
-  legs: "https://images.unsplash.com/photo-1633671856163-34f97909b715?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwxfHxza2lwcGluZyUyMHJvcGUlMjB3b3Jrb3V0JTIwZGFya3xlbnwwfHx8fDE3ODY1NjY1Mjl8MA&ixlib=rb-4.1.0&q=85",
-  cardio: "https://images.unsplash.com/photo-1633671856163-34f97909b715?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwxfHxza2lwcGluZyUyMHJvcGUlMjB3b3Jrb3V0JTIwZGFya3xlbnwwfHx8fDE3ODY1NjY1Mjl8MA&ixlib=rb-4.1.0&q=85",
-  core: "https://images.unsplash.com/photo-1660745752547-bb72b8694171?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzZ8MHwxfHNlYXJjaHw0fHxwbGFuayUyMGV4ZXJjaXNlJTIwbWF0JTIwZGFya3xlbnwwfHx8fDE3ODY1NjY1Mjl8MA&ixlib=rb-4.1.0&q=85",
+  // All hero images: confirmed male athletes in dark/gritty gym settings
+  push: "https://images.unsplash.com/photo-1765302840608-6c67281260c3?fm=jpg&q=60&w=1600&auto=format&fit=crop",
+  pull: "https://images.unsplash.com/photo-1772450014229-2a8b006893e9?fm=jpg&q=60&w=1600&auto=format&fit=crop",
+  legs: "https://images.unsplash.com/photo-1583454155184-870a1f63aebc?fm=jpg&q=60&w=1600&auto=format&fit=crop",
+  cardio: "https://images.unsplash.com/photo-1765302886933-34d10c152af3?fm=jpg&q=60&w=1600&auto=format&fit=crop",
+  fullbody: "https://images.unsplash.com/photo-1765303193537-ae41f1a3720f?fm=jpg&q=60&w=1600&auto=format&fit=crop",
 };
 
 // blocks group exercises into muscle-group sections shown with SHORT BREAK dividers
@@ -144,7 +145,7 @@ export const PLAN = {
     focus: "FULL BODY CIRCUIT",
     subtitle: "3–4 rounds • Minimal rest",
     isRestDay: false,
-    image: IMG.push,
+    image: IMG.fullbody,
     blocks: [
       {
         title: "Circuit",
