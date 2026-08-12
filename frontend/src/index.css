@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+    background-color: #050505;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+body {
+    margin: 0;
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
+}
+
+.font-display {
+    font-family: "Bebas Neue", "Inter", sans-serif;
+    letter-spacing: 0.02em;
+}
+
+@layer base {
+    :root {
+        --background: 0 0% 2%;
+        --foreground: 0 0% 100%;
+        --card: 0 0% 9%;
+        --card-foreground: 0 0% 100%;
+        --popover: 0 0% 7%;
+        --popover-foreground: 0 0% 100%;
+        --primary: 16 100% 50%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 12%;
+        --secondary-foreground: 0 0% 100%;
+        --muted: 0 0% 12%;
+        --muted-foreground: 0 0% 64%;
+        --accent: 16 100% 50%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 84% 50%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 15%;
+        --input: 0 0% 15%;
+        --ring: 16 100% 50%;
+        --radius: 0.75rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #262626;
+    border-radius: 3px;
+}
+
+/* Hide number input arrows */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Subtle noise texture */
+.noise-bg {
+    position: relative;
+}
+.noise-bg::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    z-index: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Checkmark spring animation */
+@keyframes checkPop {
+    0% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(0.82);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+.check-pop {
+    animation: checkPop 220ms ease-out;
+}
+
+/* Progress bar shine */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}

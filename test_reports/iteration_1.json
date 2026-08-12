@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only smoke test of Home Shred at 420x900 mobile viewport. Today happens to be Wednesday (rest day) so Today screen showed the REST DAY / Recovery Mode view with 5 stretches (correct). All 4 tabs, Week strip (Mon-Sun with Mon showing PUSH + SHORT BREAK divider + Push-Ups; Wed/Sun showing Rest; Fri showing Jump Rope), History (streak/week/total tiles, 7-dot week-tracker, reps-chart), Settings (dark toggle, rest default 60s -> 75s via +15, reset flow with confirm & cancel), and page reload persistence all work. Rest timer overlay opens/closes and +/-15s and pause toggle all responsive. Training-day per-set logging UI (checkmark fill, band L/M/H selector, cardio Mark Done, Skip toggle, inline rest button between blocks) could NOT be exercised end-to-end because today is a rest day; those data-testids are only rendered on the Today screen for training days. Recommend re-running full test on a training day (Mon/Tue/Thu/Fri/Sat).",
+  "tested_scope": ["frontend"],
+  "passed": [
+    "bottom-nav + nav-today/week/history/settings all render",
+    "today-rest visible on Wednesday with Recovery Mode + 5 stretches",
+    "rest-timer overlay opens from Today, remaining=1:00, +/-15s and toggle & close all work",
+    "Week strip: 7 days (week-day-mon..sun) clickable; Mon shows PUSH/SHORT BREAK/Push-Ups; Wed & Sun show Rest; Fri shows Jump Rope",
+    "History: stat-streak, stat-week, stat-total, week-tracker with 7 week-dot-*, reps-chart present",
+    "no-sessions placeholder rendered when empty",
+    "Settings: dark-mode-toggle, rest-default-value=60s -> 75s after +15",
+    "Reset flow: reset-data-button -> reset-confirm -> reset-cancel works; confirm-yes clears state and shows 'All workout data cleared' toast",
+    "Page reload preserves localStorage state (persistence verified)"
+  ],
+  "failed": [],
+  "action_items": [
+    "OPTIONAL: Re-run full training-day flow (per-set reps input + orange checkmark fill, band L/M/H selector, cardio Mark Done, Skip toggle, inline-rest-<idx> button, today-progress counter increment) on any Mon/Tue/Thu/Fri/Sat, or add a dev-only day override to enable coverage on rest days."
+  ],
+  "success_rate": {"backend": "N/A", "frontend": "100% of testable-today checks (rest-day path); training-day logging UI deferred"},
+  "retest_needed": false,
+  "full_testing_deferred": true,
+  "test_credentials": "N/A - fully offline app, no auth"
+}
