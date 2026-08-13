@@ -42,7 +42,7 @@ export default function ExerciseCard({
   return (
     <div
       data-testid={`exercise-card-${exercise.id}`}
-      className={`relative bg-[#111111] border rounded-2xl p-4 sm:p-5 ${
+      className={`relative overflow-hidden bg-[#111111] border rounded-2xl p-4 sm:p-5 ${
         isCompleted ? "border-[#FF4500]/40" : skipped ? "border-neutral-800 opacity-60" : "border-[#1F1F1F]"
       }`}
       style={{ transition: "border-color 200ms ease, opacity 200ms ease" }}
@@ -97,7 +97,7 @@ export default function ExerciseCard({
             value={singleValue}
             onChange={(e) => setSingleValue(e.target.value)}
             placeholder={exercise.duration}
-            className="flex-1 bg-black border border-[#262626] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-[#FF4500]"
+            className="flex-1 min-w-0 w-full bg-black border border-[#262626] rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:border-[#FF4500]"
             style={{ transition: "border-color 150ms ease" }}
           />
           <button
@@ -188,7 +188,7 @@ function SetRow({ exerciseId, index, exercise, log, onLogSet }) {
         onChange={(e) => setVal(e.target.value)}
         disabled={done}
         placeholder={isTimed ? "sec" : "reps"}
-        className={`flex-1 bg-black border rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none ${
+        className={`flex-1 min-w-0 w-full bg-black border rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none ${
           done ? "border-[#FF4500]/30 text-neutral-400" : "border-[#262626] focus:border-[#FF4500]"
         }`}
         style={{ transition: "border-color 150ms ease" }}

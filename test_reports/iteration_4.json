@@ -1,0 +1,21 @@
+{
+  "summary": "Verified bug fix for band exercise checkmark overflow on Today screen. Tested Thursday (dayIdx=4) LEGS + GLUTES workout at viewport widths 375px, 420px, and 768px. All 21 checkmark buttons (band + non-band rows across 6 multi-set cards) render inside their card's rounded border. Consistent right-edge alignment (17-21px inside card.right). No horizontal overflow (scrollWidth === clientWidth on all cards). Band L/M/H selector, reps input, commit action, single-input Mark Done, and rest-day rendering (Wed) all function correctly.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fix in ExerciseCard.jsx is correct: min-w-0 w-full on flex-1 inputs plus overflow-hidden on card is the standard remedy for HTML input intrinsic min-width defeating flex shrinking. Belt-and-braces overflow-hidden also protects against future additions."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "None (offline app, forced Date.getDay()=4 via add_init_script to simulate Thursday)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Bug fixed and verified. Measurements: at 420px card.right=404, complete-set.right=387 (17px inside) for ALL band+non-band rows uniformly. At 375px: 359 vs 342. At 768px: 592 vs 571. All within card. Band selector clicked -> orange highlight, reps commit -> button turns bg-[#FF4500], single mark-done works, Wed shows Rest day.",
+  "rca of the issue": "HTML <input> default intrinsic min-width (size attr ~200px) was respected even inside flex-1, pushing content past card padding on band rows (which have ~108px L/M/H buttons preceding input). Fix: min-w-0 + w-full on inputs lets flex shrink them; overflow-hidden on card clips residual bleed. Verified: getBoundingClientRect check button.right <= card.right holds for all rows at all widths."
+}
