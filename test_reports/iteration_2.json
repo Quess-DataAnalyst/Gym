@@ -1,0 +1,32 @@
+{
+  "summary": "Iteration 2 frontend verification: confirmed image URL revert in /app/frontend/src/data/plan.js. Loaded preview at 420x900 mobile viewport, navigated to Week tab, clicked each training day (Mon/Tue/Thu/Fri/Sat) and asserted hero <img> src contains the expected original Unsplash photo IDs. Also verified 4 bottom nav tabs, History stat tiles, and Settings reset flow. No console errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Week.jsx hero <img> is rendered outside the week-day-<id> button element; testing agents must query the [data-testid=week-screen] container for the hero image rather than searching within the day button."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "None - offline app",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Image revert verified. Hero image lives in Week.jsx line 96 inside a container within [data-testid=week-screen], not inside the [data-testid=week-day-<id>] button. Query the first <img> under week-screen after clicking a day button.",
+  "verification_details": {
+    "week-day-mon": "PASS - photo-1765302755287-e3288ea8fbcb",
+    "week-day-tue": "PASS - photo-1584827386916-b5351d3ba34b",
+    "week-day-thu": "PASS - photo-1633671856163-34f97909b715",
+    "week-day-fri": "PASS - photo-1633671856163-34f97909b715",
+    "week-day-sat": "PASS - photo-1765302755287-e3288ea8fbcb",
+    "nav_tabs": "all 4 visible",
+    "history_stats": "stat-streak/week/total all visible",
+    "settings_reset": "reset-data-button -> reset-confirm flow works",
+    "console_errors": "none"
+  }
+}
