@@ -12,7 +12,7 @@ const ICONS = {
   footprints: Footprints,
 };
 
-export default function Settings({ onReset, restSeconds, setRestSeconds }) {
+export default function Settings({ onReset, restSeconds, setRestSeconds, isDark, setIsDark }) {
   const [settings, setSettings] = useState(loadSettings());
   const [confirming, setConfirming] = useState(false);
 
@@ -20,7 +20,8 @@ export default function Settings({ onReset, restSeconds, setRestSeconds }) {
     const next = { ...settings, darkMode: !settings.darkMode };
     setSettings(next);
     saveSettings(next);
-    toast(next.darkMode ? "Dark mode on" : "Home Shred is dark mode only — kept on");
+    setIsDark(next.darkMode);
+    toast(next.darkMode ? "Dark mode on" : "Light mode on");
   };
 
   const changeRest = (v) => {

@@ -10,6 +10,20 @@ body,
     min-height: 100vh;
 }
 
+html[data-theme="light"],
+html[data-theme="light"] body,
+html[data-theme="light"] #root {
+    background-color: #FAFAFA;
+    color: #0A0A0A;
+}
+
+.app-bg {
+    background-color: #050505;
+}
+html[data-theme="light"] .app-bg {
+    background-color: #FAFAFA;
+}
+
 body {
     margin: 0;
     font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -115,4 +129,79 @@ input[type="number"] {
     100% {
         background-position: 200% 0;
     }
+}
+
+/* ==========================================
+   Light theme overrides (data-theme="light")
+   ========================================== */
+html[data-theme="light"] .noise-bg::before {
+    opacity: 0;
+}
+
+/* Backgrounds — dark greys become light greys / white */
+html[data-theme="light"] .bg-\[\#050505\] { background-color: #FAFAFA !important; }
+html[data-theme="light"] .bg-\[\#0A0A0A\] { background-color: #FFFFFF !important; }
+html[data-theme="light"] .bg-\[\#0D0D0D\] { background-color: #F5F5F5 !important; }
+html[data-theme="light"] .bg-\[\#0E0E0E\] { background-color: #F5F5F5 !important; }
+html[data-theme="light"] .bg-\[\#0F0F0F\] { background-color: #FFFFFF !important; }
+html[data-theme="light"] .bg-\[\#101010\] { background-color: #F5F5F5 !important; }
+html[data-theme="light"] .bg-\[\#111111\] { background-color: #FFFFFF !important; }
+html[data-theme="light"] .bg-\[\#151515\] { background-color: #F0F0F0 !important; }
+html[data-theme="light"] .bg-\[\#171717\] { background-color: #F5F5F5 !important; }
+html[data-theme="light"] .bg-\[\#1A1A1A\] { background-color: #EDEDED !important; }
+html[data-theme="light"] .bg-\[\#1E1E1E\] { background-color: #E5E5E5 !important; }
+html[data-theme="light"] .bg-\[\#1F1F1F\] { background-color: #E5E5E5 !important; }
+html[data-theme="light"] .bg-\[\#262626\] { background-color: #E0E0E0 !important; }
+html[data-theme="light"] .bg-black { background-color: #FFFFFF !important; }
+
+/* Borders */
+html[data-theme="light"] .border-\[\#151515\] { border-color: #E5E5E5 !important; }
+html[data-theme="light"] .border-\[\#1A1A1A\] { border-color: #E5E5E5 !important; }
+html[data-theme="light"] .border-\[\#1F1F1F\] { border-color: #E5E5E5 !important; }
+html[data-theme="light"] .border-\[\#262626\] { border-color: #D4D4D4 !important; }
+html[data-theme="light"] .border-\[\#2A2A2A\] { border-color: #D4D4D4 !important; }
+html[data-theme="light"] .divide-\[\#1A1A1A\] > :not([hidden]) ~ :not([hidden]) { border-color: #E5E5E5 !important; }
+
+/* Text */
+html[data-theme="light"] .text-white { color: #0A0A0A !important; }
+html[data-theme="light"] .text-neutral-300 { color: #404040 !important; }
+html[data-theme="light"] .text-neutral-400 { color: #525252 !important; }
+html[data-theme="light"] .text-neutral-500 { color: #737373 !important; }
+html[data-theme="light"] .text-neutral-600 { color: #A3A3A3 !important; }
+html[data-theme="light"] .text-neutral-700 { color: #A3A3A3 !important; }
+
+/* Inputs need explicit override — placeholder + background both */
+html[data-theme="light"] input {
+    background-color: #FFFFFF !important;
+    color: #0A0A0A !important;
+    border-color: #D4D4D4 !important;
+}
+html[data-theme="light"] input::placeholder {
+    color: #A3A3A3 !important;
+}
+html[data-theme="light"] input:focus {
+    border-color: #FF4500 !important;
+}
+
+/* Bottom-nav & subtle borders on light bg */
+html[data-theme="light"] nav[data-testid="bottom-nav"] {
+    background-color: #FFFFFF !important;
+    border-top-color: #E5E5E5 !important;
+}
+
+/* Reset danger-zone (red background stays red-tinted but softer) */
+html[data-theme="light"] .bg-\[\#150606\] { background-color: #FEF2F2 !important; }
+html[data-theme="light"] .border-red-900\/50 { border-color: rgba(220, 38, 38, 0.3) !important; }
+
+/* Rest-day recovery gradient */
+html[data-theme="light"] .from-\[\#1A0A00\] { --tw-gradient-from: #FFF7ED !important; }
+html[data-theme="light"] .to-\[\#0F0F0F\] { --tw-gradient-to: #FFFFFF !important; }
+html[data-theme="light"] .from-\[\#150800\] { --tw-gradient-from: #FFF7ED !important; }
+
+/* Hero image gradient overlays — keep image visible but fade to page bg */
+html[data-theme="light"] .today-hero-fade {
+    background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.55) 55%, #FAFAFA 100%) !important;
+}
+html[data-theme="light"] .week-hero-fade {
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.7) 100%) !important;
 }
