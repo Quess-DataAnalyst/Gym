@@ -130,6 +130,16 @@ export default function Settings({ onReset, restSeconds, setRestSeconds, isDark,
         </div>
       </section>
 
+      {/* Install to home screen */}
+      <section className="px-4 mt-6" data-testid="install-hint">
+        <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 mb-2">Install On Phone</div>
+        <div className="bg-[#111111] border border-[#1F1F1F] rounded-2xl p-4 text-sm text-neutral-300 space-y-2">
+          <p><span className="text-[#FF4500] font-semibold">iPhone (Safari):</span> tap the Share icon → <span className="text-white font-medium">Add to Home Screen</span>.</p>
+          <p><span className="text-[#FF4500] font-semibold">Android (Chrome):</span> tap the three-dot menu → <span className="text-white font-medium">Install app</span>.</p>
+          <p className="text-neutral-500 text-xs">Once installed, Home Shred opens without internet — all data stays on your device.</p>
+        </div>
+      </section>
+
       {/* Equipment */}
       <section className="px-4 mt-6">
         <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 mb-2">Equipment</div>

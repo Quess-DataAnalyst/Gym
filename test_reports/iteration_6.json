@@ -1,0 +1,61 @@
+{
+  "summary": "Frontend PWA/offline testing at https://shred-tracker-2.preview.emergentagent.com/Gym/. Verified service worker registration, manifest, icons, offline reload, offline navigation across all 4 tabs, and the new Settings 'Install On Phone' hint card. All primary offline requirements PASS.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "History/Week charts", "issues": ["Pre-existing recharts warning: 'The width(-1) and height(-1) of chart should be greater than 0'. Not caused by this iteration; consider setting minWidth/minHeight on ResponsiveContainer."]}
+    ]
+  },
+  "pwa_verification": {
+    "sw_registered": true,
+    "sw_scope": "https://shred-tracker-2.preview.emergentagent.com/Gym/",
+    "sw_controller_active": true,
+    "sw_script_url": "https://shred-tracker-2.preview.emergentagent.com/Gym/service-worker.js",
+    "manifest_status": 200,
+    "manifest_valid": true,
+    "manifest_short_name": "Home Shred",
+    "manifest_display": "standalone",
+    "manifest_theme_color": "#050505",
+    "manifest_icons": ["192x192 any", "512x512 any", "512x512 maskable"],
+    "icon-192.png": "200 image/png",
+    "icon-512.png": "200 image/png",
+    "apple-touch-icon.png": "200 image/png",
+    "meta_apple_capable": "yes",
+    "meta_apple_status_bar": "black-translucent",
+    "meta_apple_title": "Home Shred",
+    "meta_theme_color": "#050505",
+    "install_hint_present": true,
+    "install_hint_contains_ios": true,
+    "install_hint_contains_android": true
+  },
+  "offline_verification": {
+    "offline_reload_1": "PASS — Today screen (THURSDAY / LEGS + GLUTES) rendered fully offline; bottom-nav visible (4 tabs)",
+    "offline_nav_week": "PASS",
+    "offline_nav_history": "PASS",
+    "offline_nav_settings": "PASS (install-hint visible)",
+    "offline_reload_2": "PASS — Today re-rendered after a second offline reload",
+    "notes": "WebSocket errors to /ws are CRA dev-server HMR failures while offline and are harmless (not part of app shell). No fetch errors that block the app shell."
+  },
+  "regression_checks": {
+    "bottom_nav_4_tabs": "PASS",
+    "settings_screen_render": "PASS",
+    "week_screen_render": "PASS",
+    "history_screen_render": "PASS"
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "manifest.json uses start_url='.' and scope='.'. Works when opening from /Gym/ but if user launches the installed PWA and the resolved start_url ever ends up at root (edge cases when installed from a non-trailing-slash URL), scope could be too narrow. Consider explicit start_url='/Gym/' and scope='/Gym/' for production deploy (github.io/Gym).",
+    "registerServiceWorker.js skips localhost unless ?sw=1 — fine, but note dev preview succeeded because hostname is *.preview.emergentagent.com.",
+    "service-worker.js correctly derives SCOPE from registration.scope so it works on both '/' and '/Gym/'."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "None required",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "PWA offline mode fully working at /Gym/ scope. Service worker registers, caches app shell, and offline reloads + tab navigation all succeed. Install-hint card visible in Settings with iOS and Android instructions."
+}
