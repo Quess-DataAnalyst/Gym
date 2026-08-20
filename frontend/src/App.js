@@ -35,6 +35,7 @@ function App() {
         {tab === "settings" && (
           <Settings
             onReset={onTick}
+            onTick={onTick}
             restSeconds={restSeconds}
             setRestSeconds={setRestSeconds}
             isDark={isDark}

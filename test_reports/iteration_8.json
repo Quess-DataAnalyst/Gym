@@ -1,0 +1,34 @@
+{
+  "summary": "Frontend-only testing of the new dynamic Equipment feature (iteration 8). Verified defaults, add preset (dumbbells, pull-up bar, kettlebell), remove, custom equipment, merge into Today/Week (Monday, Tuesday, Thursday), hide-on-remove (bands), NEW badges via addon logic, and History rendering. 11 of 12 flows PASS. 1 real bug found: 'Reset All App Data' does NOT reset equipment to defaults.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Settings › Reset All App Data",
+        "issue": "clearAllData() in /app/frontend/src/lib/storage.js only removes 'homeshred:sessions' and 'homeshred:settings' but does NOT remove 'homeshred:equipment'. After confirming reset, the equipment list retains previously added items (observed 9 rows including Dumbbells, Pull-Up Bar, Kettlebell, Sandbag instead of the expected 6 defaults). Requirement explicitly states reset should restore equipment to defaults.",
+        "selector": "[data-testid='reset-confirm-yes']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "History", "issues": ["Recharts console warning: 'The width(-1) and height(-1) of chart should be greater than 0'. Chart still renders but container may briefly have zero dimensions on mount."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Fix clearAllData() in /app/frontend/src/lib/storage.js to also remove localStorage key 'homeshred:equipment' (or import the equipment KEY constant / call a dedicated resetEquipment helper). After reset, loadEquipment() should return the 6 DEFAULT_EQUIPMENT_IDS."
+  ],
+  "critical_code_review_comments": [
+    "Reset flow does not clear the equipment key — inconsistent with the app's 'reset restores defaults' contract.",
+    "Recharts container in History renders with -1/-1 initial size, producing console warnings — consider adding minHeight or fixed dimensions to the ResponsiveContainer parent.",
+    "loadEquipment() is called in a useMemo keyed only by `tick` in Today.jsx/Week.jsx — works because Settings calls onTick() after each add/remove, which is correct. Good pattern."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "92% (11/12 flows pass)"},
+  "seed_data_creation": "None — tests started from localStorage.clear() and use fresh defaults.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Only failing check: after clicking reset-confirm-yes, equipment list contains previously added items instead of resetting to 6 defaults (mat, rope, ab-wheel, stepper, bands, shoes). All merge/hide flows (dumbbells → Mon 9 exercises, pullup-bar → Tue Pull-Ups+Chin-Ups, kettlebell → Thu Kettlebell Swings+Goblet Squats, bands removal → Band Front Raise disappears on Mon), custom equipment (Sandbag), and Week screen filtering all verified working. Use page.add_init_script('Date.prototype.getDay = function(){return N;};') then page.reload() to force days.",
+  "rca of the issue": "clearAllData() in /app/frontend/src/lib/storage.js removes SESSIONS_KEY and SETTINGS_KEY but the equipment KEY 'homeshred:equipment' lives in /app/frontend/src/lib/equipment.js and is never wiped. Fix: either import the KEY into storage.js and remove it in clearAllData, or add localStorage.removeItem('homeshred:equipment') directly. Reproduction: fresh install → add Dumbbells → Settings › Reset All App Data → Confirm → equipment-list still shows dumbbells row + others. Mitigation as above."
+}

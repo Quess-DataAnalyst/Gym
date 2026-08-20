@@ -51,6 +51,7 @@ export const upsertSession = (dateKey, updater) => {
 export const clearAllData = () => {
   localStorage.removeItem(SESSIONS_KEY);
   localStorage.removeItem(SETTINGS_KEY);
+  localStorage.removeItem("homeshred:equipment");
 };
 
 export const loadSettings = () => {

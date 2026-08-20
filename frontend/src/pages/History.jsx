@@ -6,16 +6,19 @@ import {
   listRecentSessions,
   repsByWeek,
 } from "@/lib/storage";
+import { loadEquipment, makePlanFn } from "@/lib/equipment";
 import { Flame, Trophy, Dumbbell, Check, X, Moon } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { useMemo } from "react";
 
 export default function History({ tick }) {
-  void tick;
-  const streak = computeStreak((idx) => PLAN[idx]);
-  const total = computeTotalSessions();
-  const week = computeThisWeek((idx) => PLAN[idx]);
-  const recent = listRecentSessions((idx) => PLAN[idx], 20);
-  const chartData = repsByWeek(6);
+  const { owned } = useMemo(() => loadEquipment(), [tick]);
+  const planFn = useMemo(() => makePlanFn(owned), [owned]);
+  const streak = useMemo(() => computeStreak(planFn), [planFn, tick]);
+  const total = useMemo(() => computeTotalSessions(), [tick]);
+  const week = useMemo(() => computeThisWeek(planFn), [planFn, tick]);
+  const recent = useMemo(() => listRecentSessions(planFn, 20), [planFn, tick]);
+  const chartData = useMemo(() => repsByWeek(6), [tick]);
 
   return (
     <div data-testid="history-screen" className="pb-28 relative z-10">

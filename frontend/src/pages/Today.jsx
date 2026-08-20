@@ -1,19 +1,21 @@
 import { useMemo, useState } from "react";
-import { PLAN, getExercisesForDay, REST_SUGGESTIONS } from "@/data/plan";
+import { PLAN, REST_SUGGESTIONS } from "@/data/plan";
+import { buildDayPlan, flattenExercises } from "@/lib/equipment";
+import { loadEquipment } from "@/lib/equipment";
 import { getSession, upsertSession, todayKey, countExerciseProgress } from "@/lib/storage";
 import ExerciseCard from "@/components/ExerciseCard";
 import RestTimer from "@/components/RestTimer";
-import { Timer, Moon, Coffee, Wind } from "lucide-react";
+import { Timer, Moon, Coffee, Wind, Sparkles } from "lucide-react";
 
 export default function Today({ tick, onTick, restSeconds }) {
   const [restOpen, setRestOpen] = useState(false);
   const now = new Date();
   const dayIdx = now.getDay();
-  const day = PLAN[dayIdx];
   const dateKey = todayKey(now);
-  // tick is a re-render trigger
+  const { owned } = useMemo(() => loadEquipment(), [tick]);
+  const day = useMemo(() => buildDayPlan(dayIdx, owned) || PLAN[dayIdx], [dayIdx, owned]);
   const session = useMemo(() => getSession(dateKey), [dateKey, tick]);
-  const allExercises = getExercisesForDay(dayIdx);
+  const allExercises = flattenExercises(day);
   const progress = countExerciseProgress(session, allExercises);
   const pct = allExercises.length ? (progress.done / progress.total) * 100 : 0;
 
@@ -22,7 +24,6 @@ export default function Today({ tick, onTick, restSeconds }) {
       const arr = [...(s.sets[exerciseId] || [])];
       arr[setIndex] = { setNumber: setIndex + 1, completedAt: Date.now(), ...payload };
       s.sets[exerciseId] = arr;
-      // remove from skipped if present
       s.skipped = s.skipped.filter((id) => id !== exerciseId);
       return s;
     });
@@ -54,7 +55,11 @@ export default function Today({ tick, onTick, restSeconds }) {
   if (day.isRestDay) {
     return (
       <div data-testid="today-rest" className="pb-28 relative z-10">
-        <PageHeader kicker={day.dayName} title="REST DAY" subtitle="Recovery — no logged sets" />
+        <div className="px-4 pt-8">
+          <div className="text-[#FF4500] text-xs uppercase tracking-[0.3em] font-semibold">{day.dayName}</div>
+          <h1 className="font-display text-5xl sm:text-6xl uppercase text-white leading-[0.9] mt-1">Rest Day</h1>
+          <div className="text-neutral-400 text-sm mt-2">Recovery — no logged sets</div>
+        </div>
         <div className="mx-4 mt-6 bg-gradient-to-br from-[#1A0A00] to-[#0F0F0F] border border-[#FF4500]/30 rounded-2xl p-6">
           <div className="flex items-center gap-2 text-[#FF4500] mb-3">
             <Moon size={16} />
@@ -65,9 +70,7 @@ export default function Today({ tick, onTick, restSeconds }) {
           <ul className="mt-5 space-y-2.5">
             {REST_SUGGESTIONS.map((s, i) => (
               <li key={i} className="flex items-start gap-3 text-neutral-300 text-sm">
-                <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full bg-[#FF4500]/15 text-[#FF4500] text-[11px] font-bold flex items-center justify-center">
-                  {i + 1}
-                </span>
+                <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full bg-[#FF4500]/15 text-[#FF4500] text-[11px] font-bold flex items-center justify-center">{i + 1}</span>
                 {s}
               </li>
             ))}
@@ -77,27 +80,19 @@ export default function Today({ tick, onTick, restSeconds }) {
     );
   }
 
+  const isEmpty = allExercises.length === 0;
+
   return (
     <div data-testid="today-screen" className="pb-28 relative z-10">
       {/* Hero */}
       <div className="relative h-64 overflow-hidden">
         {day.image && (
-          <img
-            src={day.image}
-            alt={day.focus}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: "center 30%" }}
-          />
+          <img src={day.image} alt={day.focus} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: "center 30%" }} />
         )}
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.35) 0%, rgba(5,5,5,0.7) 55%, #050505 100%)" }}
-        />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.35) 0%, rgba(5,5,5,0.7) 55%, #050505 100%)" }} />
         <div className="absolute inset-0 p-5 flex flex-col justify-end">
           <div className="text-[#FF4500] text-xs font-semibold uppercase tracking-[0.3em]">{day.dayName}</div>
-          <h1 className="font-display text-5xl sm:text-6xl text-white uppercase leading-[0.9] mt-1" data-testid="today-focus">
-            {day.focus}
-          </h1>
+          <h1 className="font-display text-5xl sm:text-6xl text-white uppercase leading-[0.9] mt-1" data-testid="today-focus">{day.focus}</h1>
           <div className="mt-2 text-neutral-400 text-sm">{day.subtitle}</div>
         </div>
       </div>
@@ -122,52 +117,57 @@ export default function Today({ tick, onTick, restSeconds }) {
             </button>
           </div>
           <div className="h-1.5 bg-[#1A1A1A] rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full"
-              style={{
-                width: `${pct}%`,
-                background: "linear-gradient(90deg, #FF4500, #DC2626)",
-                transition: "width 400ms ease-out",
-              }}
-            />
+            <div className="h-full rounded-full" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #FF4500, #DC2626)", transition: "width 400ms ease-out" }} />
           </div>
         </div>
       </div>
 
-      {/* Blocks */}
-      <div className="px-4 mt-5 space-y-6">
-        {day.blocks.map((block, bIdx) => (
-          <div key={bIdx}>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#FF4500] font-semibold">{block.title}</span>
-              <div className="flex-1 h-px bg-[#1F1F1F]" />
+      {isEmpty ? (
+        <div data-testid="today-empty" className="mx-4 mt-6 rounded-2xl p-6 border border-dashed border-[#2A2A2A] bg-[#0D0D0D] text-center">
+          <div className="text-[#FF4500] text-xs uppercase tracking-[0.3em] font-semibold mb-2">No exercises match your kit</div>
+          <p className="text-neutral-400 text-sm">Head to Settings → Equipment and add a few items so today's plan fills in.</p>
+        </div>
+      ) : (
+        <div className="px-4 mt-5 space-y-6">
+          {day.blocks.map((block, bIdx) => (
+            <div key={bIdx}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-[#FF4500] font-semibold">{block.title}</span>
+                <div className="flex-1 h-px bg-[#1F1F1F]" />
+              </div>
+              <div className="space-y-3">
+                {block.exercises.map((ex) => (
+                  <div key={ex.id} className="relative">
+                    {ex.isAddon && (
+                      <div className="absolute -top-2 left-3 z-10 flex items-center gap-1 bg-[#FF4500] text-white text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded font-bold">
+                        <Sparkles size={9} /> New
+                      </div>
+                    )}
+                    <ExerciseCard
+                      exercise={ex}
+                      session={session}
+                      onLogSet={handleLogSet}
+                      onSkip={handleSkip}
+                      onLogSingle={handleLogSingle}
+                      circuit={day.id === "sat"}
+                    />
+                  </div>
+                ))}
+              </div>
+              {bIdx < day.blocks.length - 1 && (
+                <button
+                  data-testid={`inline-rest-${bIdx}`}
+                  onClick={() => setRestOpen(true)}
+                  className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#0E0E0E] border border-dashed border-[#2A2A2A] text-neutral-400 text-xs uppercase tracking-widest hover:border-[#FF4500]/50 hover:text-[#FF4500]"
+                  style={{ transition: "color 150ms ease, border-color 150ms ease" }}
+                >
+                  <Coffee size={14} /> Start Rest Timer
+                </button>
+              )}
             </div>
-            <div className="space-y-3">
-              {block.exercises.map((ex) => (
-                <ExerciseCard
-                  key={ex.id}
-                  exercise={ex}
-                  session={session}
-                  onLogSet={handleLogSet}
-                  onSkip={handleSkip}
-                  onLogSingle={handleLogSingle}
-                  circuit={day.id === "sat"}
-                />
-              ))}
-            </div>
-            {bIdx < day.blocks.length - 1 && (
-              <button
-                data-testid={`inline-rest-${bIdx}`}
-                onClick={() => setRestOpen(true)}
-                className="mt-4 w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-[#0E0E0E] border border-dashed border-[#2A2A2A] text-neutral-400 text-xs uppercase tracking-widest hover:border-[#FF4500]/50 hover:text-[#FF4500]"
-                style={{ transition: "color 150ms ease, border-color 150ms ease" }}
-              >
-                <Coffee size={14} /> Start Rest Timer
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {progress.done === progress.total && progress.total > 0 && (
         <div className="mx-4 mt-6 rounded-2xl p-5 bg-gradient-to-br from-[#FF4500]/20 to-[#DC2626]/10 border border-[#FF4500]/40">
@@ -180,16 +180,6 @@ export default function Today({ tick, onTick, restSeconds }) {
       )}
 
       {restOpen && <RestTimer defaultSeconds={restSeconds} onClose={() => setRestOpen(false)} />}
-    </div>
-  );
-}
-
-function PageHeader({ kicker, title, subtitle }) {
-  return (
-    <div className="px-4 pt-8">
-      <div className="text-[#FF4500] text-xs uppercase tracking-[0.3em] font-semibold">{kicker}</div>
-      <h1 className="font-display text-5xl sm:text-6xl uppercase text-white leading-[0.9] mt-1">{title}</h1>
-      {subtitle && <div className="text-neutral-400 text-sm mt-2">{subtitle}</div>}
     </div>
   );
 }
