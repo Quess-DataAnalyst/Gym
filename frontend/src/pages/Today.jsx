@@ -44,7 +44,7 @@ export default function Today({ tick, onTick, restSeconds }) {
   const handleLogSingle = (exerciseId, value) => {
     upsertSession(dateKey, (s) => {
       if (!s.completedSingles.includes(exerciseId)) s.completedSingles.push(exerciseId);
-      s.sets[exerciseId] = [{ setNumber: 1, completed: true, reps: value, completedAt: Date.now() }];
+      s.sets[exerciseId] = [{ setNumber: 1, completed: true, reps: value, isDuration: true, completedAt: Date.now() }];
       s.skipped = s.skipped.filter((id) => id !== exerciseId);
       return s;
     });

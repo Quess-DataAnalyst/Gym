@@ -145,10 +145,22 @@ function SetRow({ exerciseId, index, exercise, log, onLogSet }) {
   const isTimed = exercise.type === "timed";
   const isBand = exercise.type === "band";
 
+  // Parse the first number out of e.g. "12–15", "15 (2s squeeze)", "45–60s"
+  const parseTargetNumber = (str) => {
+    if (!str) return 0;
+    const m = String(str).match(/\d+/);
+    return m ? Number(m[0]) : 0;
+  };
+  const targetDefault = isTimed
+    ? parseTargetNumber(exercise.duration)
+    : parseTargetNumber(exercise.repRange);
+
   const commit = () => {
     if (done) return;
+    const raw = typeof val === "string" ? val.trim() : val;
+    const finalReps = raw === "" || raw === null || raw === undefined ? targetDefault : raw;
     onLogSet(exerciseId, index, {
-      reps: val,
+      reps: finalReps,
       bandLevel: isBand ? band : null,
       isDuration: isTimed,
       completed: true,
@@ -187,7 +199,7 @@ function SetRow({ exerciseId, index, exercise, log, onLogSet }) {
         value={val}
         onChange={(e) => setVal(e.target.value)}
         disabled={done}
-        placeholder={isTimed ? "sec" : "reps"}
+        placeholder={isTimed ? `${targetDefault || "sec"}s` : `${targetDefault || "reps"}`}
         className={`flex-1 min-w-0 w-full bg-black border rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none ${
           done ? "border-[#FF4500]/30 text-neutral-400" : "border-[#262626] focus:border-[#FF4500]"
         }`}

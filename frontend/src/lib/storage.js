@@ -166,7 +166,7 @@ export const listRecentSessions = (planFn, limit = 20) => {
     });
 };
 
-// Total reps completed per ISO week for chart
+// Total reps completed per ISO week for chart (excludes timed/duration entries)
 export const repsByWeek = (weeks = 6) => {
   const all = Object.values(loadSessions());
   const now = new Date();
@@ -187,7 +187,10 @@ export const repsByWeek = (weeks = 6) => {
       if (d >= start && d < end) {
         Object.values(s.sets || {}).forEach((arr) => {
           (arr || []).forEach((x) => {
-            if (x && x.completed) total += Number(x.reps) || 0;
+            if (x && x.completed && !x.isDuration) {
+              const n = Number(x.reps);
+              if (Number.isFinite(n) && n > 0) total += n;
+            }
           });
         });
       }
