@@ -1,0 +1,23 @@
+{
+  "summary": "Iteration 10 frontend testing for gym equipment presets + new 5-day split (Mon-Fri training, Sat/Sun rest). Verified 10 flows via Playwright at https://shred-tracker-2.preview.emergentagent.com/Gym/. All PRIMARY assertions passed: catalog completeness, base plan structure, Wednesday training / Saturday rest, weekly subtitle, MERGE flows (Mon 11, Wed 18, Fri 14), REMOVE flow, MULTI-EQUIPMENT dependency (Flat Barbell Bench needs both barbell + adj-bench), Settings tagline. Icons render without crashes (visible in screenshot: Barbell, Adj Bench, Chest Fly, Dip Station, Pull-Up Bar, Treadmill).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "plan.js is now ~189 lines — still fine but approaching split threshold if further addons added.",
+    "ADDON_EXERCISES.block 'Cardio' does not match any base block on Mon/Thu/Fri (base only has 'Chest + Triceps' / 'Back + Biceps'), so a new 'Cardio' block is appended — this is intentional but note the block header shows for the treadmill addon."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "test_credentials": "None",
+  "seed_data_creation": "Test used localStorage.setItem('homeshred:equipment', ...) to seed owned equipment per scenario, and localStorage.clear() to reset between runs. Date.getDay was overridden via page.add_init_script to force specific weekdays (1=Mon, 3=Wed, 5=Fri, 6=Sat).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All iteration-10 acceptance criteria confirmed working. Test methodology: seed localStorage directly for owned equipment (faster than clicking through UI); override Date.prototype.getDay via add_init_script before page.reload(); read '[data-testid=today-progress]' innerText for exercise counts. Verified counts — Mon base=2, Mon full=11; Wed base=6, Wed full=18; Fri full=14. Multi-equipment gating works (both IDs required). Remove flow hides dependent addons. Icons for all 13 new gym items render.",
+  "rca of the issue": "N/A — no issues found."
+}

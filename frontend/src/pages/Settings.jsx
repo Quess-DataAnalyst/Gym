@@ -11,7 +11,9 @@ import { clearAllData, loadSettings, saveSettings } from "@/lib/storage";
 import {
   Moon, Sun, AlertTriangle, HardDrive, Wifi, Dumbbell, Circle, Square, TrendingUp,
   Footprints, Activity, Trash2, Plus, X, Waves, Anchor, Minus, Link as LinkIcon,
-  CircleDot, Cylinder, Box, RectangleHorizontal,
+  CircleDot, Cylinder, Box, RectangleHorizontal, Blocks, SlidersHorizontal,
+  ChevronsDown, MoveHorizontal, GripVertical, MoveRight, RotateCw, ChevronsUp,
+  ArrowDown, ChevronUp, Gauge,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,6 +32,17 @@ const ICON_MAP = {
   cylinder: Cylinder,
   box: Box,
   "rectangle-horizontal": RectangleHorizontal,
+  blocks: Blocks,
+  "sliders-horizontal": SlidersHorizontal,
+  "chevrons-down": ChevronsDown,
+  "move-horizontal": MoveHorizontal,
+  "grip-vertical": GripVertical,
+  "move-right": MoveRight,
+  "rotate-cw": RotateCw,
+  "chevrons-up": ChevronsUp,
+  "arrow-down": ArrowDown,
+  "chevron-up": ChevronUp,
+  gauge: Gauge,
 };
 
 const iconFor = (name) => ICON_MAP[name] || Dumbbell;
@@ -146,7 +159,7 @@ export default function Settings({ onReset, restSeconds, setRestSeconds, isDark,
             </div>
             <div>
               <div className="font-display text-3xl uppercase text-white leading-none">Home Shred</div>
-              <div className="text-neutral-400 text-xs mt-1">5-Day Home Split — Bodyweight + Bands</div>
+              <div className="text-neutral-400 text-xs mt-1">5-Day Split — Home + Gym Adaptive</div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 mt-5">

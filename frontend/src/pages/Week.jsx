@@ -23,7 +23,7 @@ export default function Week({ tick }) {
       <div className="px-4 pt-8">
         <div className="text-[#FF4500] text-xs uppercase tracking-[0.3em] font-semibold">The Split</div>
         <h1 className="font-display text-5xl sm:text-6xl uppercase text-white leading-[0.9] mt-1">Weekly Plan</h1>
-        <p className="text-neutral-400 text-sm mt-2">5 training days • 2 rest days (Wed, Sun)</p>
+        <p className="text-neutral-400 text-sm mt-2">5 training days • 2 rest days (Sat, Sun)</p>
       </div>
 
       {/* Day strip */}
