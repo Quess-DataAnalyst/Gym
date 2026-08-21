@@ -1,0 +1,18 @@
+{
+  "summary": "Iteration 11 frontend testing. Verified plan.js revert: 5-day home split restored with Wed+Sun rest days. All 7 day scenarios pass with the default 6-equipment kit (Mon=7, Tue=7, Wed=REST, Thu=7, Fri=6, Sat=7, Sun=REST). Gym addon merge works on Mon (7+3=10 with barbell+adj-bench) and Thu (7+3=10 with barbell+squat-rack+leg-press+hamstring-curl). Sparkles NEW badges render for addons. Equipment removal regressions verified for bands (Mon 6, Tue 4, Sat 5), ab-wheel (Mon 6), stepper (Mon 6, Thu 6), rope (Fri 5), shoes (Fri 5). Week screen subtitle reads '5 training days • 2 rest days (Wed, Sun)'. Week chips for Wed and Sun display 'Rest / Mobility' card; Sat shows Full Body Circuit. History → weekly dot tracker shows 2 moon icons (Wed, Sun).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "plan.js hero image URLs for legs/cardio/fullbody are duplicates or mismatched (legs uses a 'skipping rope' image, fullbody reuses the push image). Consider more relevant art per day.",
+    "buildDayPlan only exposes isAddon flag but no ordering guarantee — addons may appear before/after base within a block; consider sorting base first, addons after for consistent UX."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A", "frontend": "100%"},
+  "seed_data_creation": "None (used localStorage.setItem homeshred:equipment for scenarios).",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "App base URL requires /Gym/ path. Force training day via page.add_init_script(\"Date.prototype.getDay = function(){return N;};\") BEFORE page.goto. Rest days are Wed(3) and Sun(0). Default equipment: mat, rope, ab-wheel, stepper, bands, shoes. Storage key: 'homeshred:equipment' with shape {owned:[], custom:[]}. Expected base counts: Mon=7, Tue=7, Thu=7, Fri=6, Sat=7.",
+  "rca of the issue": "N/A — all requested primary bug fixes verified working."
+}
