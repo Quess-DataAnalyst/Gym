@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { EQUIPMENT_CATALOG } from "@/data/plan";
+import { EQUIPMENT_CATALOG, WEEK_ORDER, PLAN } from "@/data/plan";
 import {
   loadEquipment,
   addEquipment,
   removeEquipment,
   addCustomEquipment,
   getEquipmentMeta,
+  loadCustomExercises,
+  addCustomExercise,
+  removeCustomExercise,
 } from "@/lib/equipment";
 import { clearAllData, loadSettings, saveSettings } from "@/lib/storage";
 import {
@@ -50,6 +53,7 @@ const iconFor = (name) => ICON_MAP[name] || Dumbbell;
 export default function Settings({ onReset, restSeconds, setRestSeconds, isDark, setIsDark, onTick }) {
   const [settings, setSettings] = useState(loadSettings());
   const [equipment, setEquipment] = useState(loadEquipment());
+  const [customExercises, setCustomExercises] = useState(loadCustomExercises());
   const [addOpen, setAddOpen] = useState(false);
   const [customName, setCustomName] = useState("");
   const [confirming, setConfirming] = useState(false);
@@ -78,6 +82,7 @@ export default function Settings({ onReset, restSeconds, setRestSeconds, isDark,
     clearAllData();
     setConfirming(false);
     setEquipment(loadEquipment());
+    setCustomExercises(loadCustomExercises());
     onReset();
     toast.success("All workout data cleared");
   };
@@ -90,6 +95,7 @@ export default function Settings({ onReset, restSeconds, setRestSeconds, isDark,
 
   const handleRemove = (id, name) => {
     setEquipment(removeEquipment(id));
+    setCustomExercises(loadCustomExercises());
     toast(`${name} removed`);
     notifyOthers();
   };
@@ -100,6 +106,17 @@ export default function Settings({ onReset, restSeconds, setRestSeconds, isDark,
     setEquipment(addCustomEquipment(trimmed));
     setCustomName("");
     toast.success(`${trimmed} added`);
+    notifyOthers();
+  };
+
+  const handleAddCustomExercise = (payload) => {
+    setCustomExercises(addCustomExercise(payload));
+    toast.success(`${payload.name} added`);
+    notifyOthers();
+  };
+
+  const handleRemoveCustomExercise = (id) => {
+    setCustomExercises(removeCustomExercise(id));
     notifyOthers();
   };
 
@@ -255,100 +272,277 @@ export default function Settings({ onReset, restSeconds, setRestSeconds, isDark,
       {addOpen && (
         <AddEquipmentSheet
           catalog={catalogUnowned}
+          customOwned={equipment.custom}
+          customExercises={customExercises}
           onClose={() => setAddOpen(false)}
           onAdd={handleAdd}
           onAddCustom={handleAddCustom}
           customName={customName}
           setCustomName={setCustomName}
+          onAddCustomExercise={handleAddCustomExercise}
+          onRemoveCustomExercise={handleRemoveCustomExercise}
         />
       )}
     </div>
   );
 }
 
-function AddEquipmentSheet({ catalog, onClose, onAdd, onAddCustom, customName, setCustomName }) {
+const DAY_LABELS = {
+  1: "Mon", 2: "Tue", 3: "Wed (Rest)", 4: "Thu", 5: "Fri", 6: "Sat", 0: "Sun (Rest)",
+};
+
+function AddEquipmentSheet({
+  catalog, customOwned, customExercises, onClose, onAdd,
+  onAddCustom, customName, setCustomName,
+  onAddCustomExercise, onRemoveCustomExercise,
+}) {
+  const [tab, setTab] = useState("presets");
+  const [openExFor, setOpenExFor] = useState(null); // equipmentId with expanded exercise form
+
   return (
     <div
       data-testid="add-equipment-sheet"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-3"
       style={{
-        paddingTop: "max(1rem, env(safe-area-inset-top))",
-        paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
+        paddingTop: "max(0.75rem, env(safe-area-inset-top))",
+        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
       }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[#0F0F0F] border border-[#262626] rounded-2xl p-5 relative max-h-full overflow-y-auto"
+        className="w-full max-w-md bg-[#0F0F0F] border border-[#262626] rounded-2xl relative flex flex-col"
+        style={{ maxHeight: "90vh" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          data-testid="add-equipment-close"
-          onClick={onClose}
-          className="absolute right-3 top-3 text-neutral-500 hover:text-white p-1"
-        >
-          <X size={18} />
-        </button>
-        <div className="flex items-center gap-2 text-[#FF4500] mb-3">
-          <Plus size={16} />
-          <span className="text-xs uppercase tracking-[0.25em] font-semibold">Add Equipment</span>
-        </div>
-        <div className="font-display text-3xl uppercase text-white mb-4">Build Your Kit</div>
-
-        {catalog.length === 0 ? (
-          <p className="text-neutral-500 text-sm mb-4">All preset items already added.</p>
-        ) : (
-          <div className="space-y-2 mb-5">
-            {catalog.map((eq) => {
-              const Icon = iconFor(eq.icon);
-              return (
-                <button
-                  key={eq.id}
-                  data-testid={`add-catalog-${eq.id}`}
-                  onClick={() => onAdd(eq.id, eq.name)}
-                  className="w-full flex items-center gap-3 bg-[#151515] border border-[#262626] rounded-xl px-3 py-3 hover:border-[#FF4500]/50 hover:bg-[#1A1A1A] text-left"
-                  style={{ transition: "border-color 150ms ease, background-color 150ms ease" }}
-                >
-                  <div className="w-9 h-9 rounded-md bg-[#0A0A0A] flex items-center justify-center">
-                    <Icon size={16} className="text-[#FF4500]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm font-medium">{eq.name}</div>
-                    {eq.blurb && <div className="text-neutral-500 text-[11px] truncate">{eq.blurb}</div>}
-                  </div>
-                  <Plus size={16} className="text-[#FF4500] shrink-0" />
-                </button>
-              );
-            })}
+        {/* Header */}
+        <div className="px-5 pt-5 pb-3 border-b border-[#1A1A1A]">
+          <button
+            data-testid="add-equipment-close"
+            onClick={onClose}
+            className="absolute right-3 top-3 text-neutral-500 hover:text-white p-1"
+          >
+            <X size={18} />
+          </button>
+          <div className="flex items-center gap-2 text-[#FF4500] mb-2">
+            <Plus size={16} />
+            <span className="text-xs uppercase tracking-[0.25em] font-semibold">Add Equipment</span>
           </div>
-        )}
-
-        <div className="border-t border-[#262626] pt-4">
-          <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 mb-2">Custom</div>
-          <div className="flex items-center gap-2">
-            <input
-              data-testid="custom-equipment-input"
-              value={customName}
-              onChange={(e) => setCustomName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") onAddCustom();
-              }}
-              placeholder="e.g. Sandbag"
-              className="flex-1 min-w-0 bg-black border border-[#262626] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#FF4500]"
-              style={{ transition: "border-color 150ms ease" }}
-            />
+          <div className="font-display text-2xl uppercase text-white">Build Your Kit</div>
+          {/* Tabs */}
+          <div className="mt-4 grid grid-cols-2 gap-1 bg-[#0A0A0A] p-1 rounded-lg border border-[#1F1F1F]">
             <button
-              data-testid="custom-equipment-add"
-              onClick={onAddCustom}
-              disabled={!customName.trim()}
-              className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white ${customName.trim() ? "" : "opacity-40"}`}
-              style={{ background: "linear-gradient(90deg, #FF4500, #DC2626)" }}
+              data-testid="tab-presets"
+              onClick={() => setTab("presets")}
+              className={`py-2 rounded-md text-xs uppercase tracking-widest font-bold ${tab === "presets" ? "text-white" : "text-neutral-500"}`}
+              style={tab === "presets" ? { background: "linear-gradient(90deg, #FF4500, #DC2626)" } : {}}
             >
-              Add
+              Presets
+            </button>
+            <button
+              data-testid="tab-custom"
+              onClick={() => setTab("custom")}
+              className={`py-2 rounded-md text-xs uppercase tracking-widest font-bold ${tab === "custom" ? "text-white" : "text-neutral-500"}`}
+              style={tab === "custom" ? { background: "linear-gradient(90deg, #FF4500, #DC2626)" } : {}}
+            >
+              Custom
             </button>
           </div>
-          <p className="text-neutral-500 text-[11px] mt-2">Custom items show in your kit list but don't unlock preset exercises.</p>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {tab === "presets" ? (
+            catalog.length === 0 ? (
+              <p className="text-neutral-500 text-sm">All preset items already added.</p>
+            ) : (
+              <div className="space-y-2">
+                {catalog.map((eq) => {
+                  const Icon = iconFor(eq.icon);
+                  return (
+                    <button
+                      key={eq.id}
+                      data-testid={`add-catalog-${eq.id}`}
+                      onClick={() => onAdd(eq.id, eq.name)}
+                      className="w-full flex items-center gap-3 bg-[#151515] border border-[#262626] rounded-xl px-3 py-3 hover:border-[#FF4500]/50 hover:bg-[#1A1A1A] text-left"
+                      style={{ transition: "border-color 150ms ease, background-color 150ms ease" }}
+                    >
+                      <div className="w-9 h-9 rounded-md bg-[#0A0A0A] flex items-center justify-center shrink-0">
+                        <Icon size={16} className="text-[#FF4500]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white text-sm font-medium truncate">{eq.name}</div>
+                        {eq.blurb && <div className="text-neutral-500 text-[11px] truncate">{eq.blurb}</div>}
+                      </div>
+                      <Plus size={16} className="text-[#FF4500] shrink-0" />
+                    </button>
+                  );
+                })}
+              </div>
+            )
+          ) : (
+            <div className="space-y-4">
+              {/* Add new custom equipment */}
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 mb-2">New Custom Item</div>
+                <div className="flex items-center gap-2">
+                  <input
+                    data-testid="custom-equipment-input"
+                    value={customName}
+                    onChange={(e) => setCustomName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") onAddCustom(); }}
+                    placeholder="e.g. Smith Machine"
+                    className="flex-1 min-w-0 bg-black border border-[#262626] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#FF4500]"
+                    style={{ transition: "border-color 150ms ease" }}
+                  />
+                  <button
+                    data-testid="custom-equipment-add"
+                    onClick={onAddCustom}
+                    disabled={!customName.trim()}
+                    className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-white ${customName.trim() ? "" : "opacity-40"}`}
+                    style={{ background: "linear-gradient(90deg, #FF4500, #DC2626)" }}
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              {/* Existing custom items — expand to add exercises */}
+              {customOwned.length === 0 ? (
+                <p className="text-neutral-500 text-xs">
+                  Custom items you add here will show below. Tap one to attach exercises.
+                </p>
+              ) : (
+                <div>
+                  <div className="text-[10px] uppercase tracking-[0.3em] text-neutral-500 mb-2">Your Custom Kit</div>
+                  <div className="space-y-2">
+                    {customOwned.map((eq) => {
+                      const Icon = iconFor(eq.icon);
+                      const mine = customExercises.filter((x) => x.equipmentId === eq.id);
+                      const open = openExFor === eq.id;
+                      return (
+                        <div key={eq.id} data-testid={`custom-item-${eq.id}`} className="bg-[#151515] border border-[#262626] rounded-xl overflow-hidden">
+                          <button
+                            onClick={() => setOpenExFor(open ? null : eq.id)}
+                            className="w-full flex items-center gap-3 px-3 py-3 text-left"
+                          >
+                            <div className="w-9 h-9 rounded-md bg-[#0A0A0A] flex items-center justify-center shrink-0">
+                              <Icon size={16} className="text-[#FF4500]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-white text-sm font-medium truncate">{eq.name}</div>
+                              <div className="text-neutral-500 text-[11px]">{mine.length} exercise{mine.length === 1 ? "" : "s"}</div>
+                            </div>
+                            <span className="text-[10px] uppercase tracking-widest text-[#FF4500] font-bold">
+                              {open ? "Hide" : "Manage"}
+                            </span>
+                          </button>
+                          {open && (
+                            <div className="px-3 pb-3 border-t border-[#1A1A1A] pt-3 space-y-3">
+                              {/* Existing exercises */}
+                              {mine.map((ex) => (
+                                <div key={ex.id} data-testid={`custom-ex-${ex.id}`} className="flex items-center gap-2 bg-[#0A0A0A] border border-[#1F1F1F] rounded-lg px-3 py-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-white text-sm truncate">{ex.name}</div>
+                                    <div className="text-neutral-500 text-[11px]">
+                                      {ex.sets} × {ex.repRange} • {DAY_LABELS[ex.dayIdx] || "Mon"}
+                                    </div>
+                                  </div>
+                                  <button
+                                    data-testid={`remove-custom-ex-${ex.id}`}
+                                    onClick={() => onRemoveCustomExercise(ex.id)}
+                                    className="w-8 h-8 rounded-md text-neutral-500 hover:text-red-400 hover:bg-red-950/30 flex items-center justify-center"
+                                    style={{ transition: "color 150ms ease, background-color 150ms ease" }}
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              ))}
+                              {/* Add exercise inline form */}
+                              <ExerciseForm
+                                equipmentId={eq.id}
+                                onAdd={(payload) => onAddCustomExercise(payload)}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              <p className="text-neutral-500 text-[11px]">
+                Custom items and their exercises show on the day you pick — with a NEW badge — while the equipment stays in your kit.
+              </p>
+            </div>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ExerciseForm({ equipmentId, onAdd }) {
+  const today = new Date().getDay();
+  const defaultDay = PLAN[today]?.isRestDay ? 1 : today;
+  const [name, setName] = useState("");
+  const [sets, setSets] = useState("3");
+  const [reps, setReps] = useState("10–15");
+  const [day, setDay] = useState(defaultDay);
+
+  const submit = () => {
+    if (!name.trim()) return;
+    onAdd({ equipmentId, name, sets, repRange: reps, dayIdx: day });
+    setName("");
+    setSets("3");
+    setReps("10–15");
+  };
+
+  return (
+    <div data-testid={`custom-ex-form-${equipmentId}`} className="space-y-2 bg-[#0A0A0A] border border-dashed border-[#2A2A2A] rounded-lg p-3">
+      <input
+        data-testid={`custom-ex-name-${equipmentId}`}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Exercise name (e.g. Smith Squat)"
+        className="w-full min-w-0 bg-black border border-[#262626] rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#FF4500]"
+        style={{ transition: "border-color 150ms ease" }}
+      />
+      <div className="grid grid-cols-3 gap-2">
+        <input
+          data-testid={`custom-ex-sets-${equipmentId}`}
+          value={sets}
+          onChange={(e) => setSets(e.target.value)}
+          inputMode="numeric"
+          placeholder="Sets"
+          className="min-w-0 bg-black border border-[#262626] rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#FF4500]"
+        />
+        <input
+          data-testid={`custom-ex-reps-${equipmentId}`}
+          value={reps}
+          onChange={(e) => setReps(e.target.value)}
+          placeholder="Reps"
+          className="min-w-0 bg-black border border-[#262626] rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-600 focus:outline-none focus:border-[#FF4500]"
+        />
+        <select
+          data-testid={`custom-ex-day-${equipmentId}`}
+          value={day}
+          onChange={(e) => setDay(Number(e.target.value))}
+          className="min-w-0 bg-black border border-[#262626] rounded-lg px-2 py-2 text-sm text-white focus:outline-none focus:border-[#FF4500]"
+        >
+          {WEEK_ORDER.filter((d) => !PLAN[d].isRestDay).map((d) => (
+            <option key={d} value={d}>{PLAN[d].dayName.slice(0, 3)}</option>
+          ))}
+        </select>
+      </div>
+      <button
+        data-testid={`custom-ex-submit-${equipmentId}`}
+        onClick={submit}
+        disabled={!name.trim()}
+        className={`w-full py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-white ${name.trim() ? "" : "opacity-40"}`}
+        style={{ background: "linear-gradient(90deg, #FF4500, #DC2626)" }}
+      >
+        + Add Exercise
+      </button>
     </div>
   );
 }

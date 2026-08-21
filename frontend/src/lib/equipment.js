@@ -2,6 +2,7 @@
 import { PLAN, ADDON_EXERCISES, EQUIPMENT_CATALOG, DEFAULT_EQUIPMENT_IDS } from "@/data/plan";
 
 const KEY = "homeshred:equipment";
+const CX_KEY = "homeshred:custom-exercises";
 
 const safeParse = (raw, fallback) => {
   try {
@@ -39,6 +40,9 @@ export const removeEquipment = (id) => {
   data.owned = data.owned.filter((x) => x !== id);
   data.custom = data.custom.filter((x) => x.id !== id);
   saveEquipment(data);
+  // Also drop any custom exercises tied to this equipment
+  const cx = loadCustomExercises().filter((x) => x.equipmentId !== id);
+  saveCustomExercises(cx);
   return data;
 };
 
@@ -86,6 +90,14 @@ export const buildDayPlan = (dayIdx, ownedIds) => {
     else baseBlocks.push({ title: ex.block, exercises: [{ ...ex, isAddon: true }] });
   });
 
+  // Merge user-defined custom exercises for this day
+  const customs = customExercisesForDay(dayIdx, owned);
+  if (customs.length > 0) {
+    const existing = baseBlocks.find((b) => b.title === "Custom");
+    if (existing) existing.exercises.push(...customs);
+    else baseBlocks.push({ title: "Custom", exercises: customs });
+  }
+
   return { ...day, blocks: baseBlocks };
 };
 
@@ -94,3 +106,45 @@ export const makePlanFn = (ownedIds) => (dayIdx) => buildDayPlan(dayIdx, ownedId
 
 export const flattenExercises = (day) =>
   (day?.blocks || []).flatMap((b) => b.exercises);
+
+// -------- Custom exercises (attached to any equipment, targeted to a day) --------
+export const loadCustomExercises = () => safeParse(localStorage.getItem(CX_KEY), []);
+export const saveCustomExercises = (list) => localStorage.setItem(CX_KEY, JSON.stringify(list));
+
+export const addCustomExercise = ({ equipmentId, name, sets, repRange, dayIdx }) => {
+  const list = loadCustomExercises();
+  const clean = String(name || "").trim();
+  if (!clean) return list;
+  const id = `cex-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  list.push({
+    id,
+    equipmentId,
+    name: clean,
+    sets: Math.max(1, Number(sets) || 3),
+    repRange: String(repRange || "10–15").trim() || "10–15",
+    dayIdx: Number(dayIdx),
+  });
+  saveCustomExercises(list);
+  return list;
+};
+
+export const removeCustomExercise = (id) => {
+  const list = loadCustomExercises().filter((x) => x.id !== id);
+  saveCustomExercises(list);
+  return list;
+};
+
+export const customExercisesForDay = (dayIdx, ownedSet) =>
+  loadCustomExercises()
+    .filter((x) => x.dayIdx === dayIdx && ownedSet.has(x.equipmentId))
+    .map((x) => ({
+      id: x.id,
+      name: x.name,
+      type: "strength",
+      sets: x.sets,
+      repRange: x.repRange,
+      equipment: (getEquipmentMeta(x.equipmentId) || {}).name || "Custom",
+      equipmentIds: [x.equipmentId],
+      isAddon: true,
+      isCustomExercise: true,
+    }));

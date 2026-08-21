@@ -52,6 +52,7 @@ export const clearAllData = () => {
   localStorage.removeItem(SESSIONS_KEY);
   localStorage.removeItem(SETTINGS_KEY);
   localStorage.removeItem("homeshred:equipment");
+  localStorage.removeItem("homeshred:custom-exercises");
 };
 
 export const loadSettings = () => {

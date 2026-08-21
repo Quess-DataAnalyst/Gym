@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only testing for Iteration 12 (Add Equipment two-tab modal + Custom exercises with day assignment). Verified all 7 primary scenarios at 375x600 and 375x700 viewports on the /Gym/ route. All acceptance criteria met.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: In Settings.jsx, second exercise reps input default was retained ('10–15' en-dash), which caused stored repRange for Bench to be '10–15' vs Squat '10-15' typed by user — this is expected behavior (state persists between adds). No fix needed.",
+    "Consider making the Custom tab's 'Your Custom Kit' section a sticky/pinned reference so users know where new items appear on very small screens."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": "None required (localStorage-only PWA)",
+  "seed_data_creation": "Test seeded custom equipment 'Smith Machine' + 2 custom exercises via UI, wiped between phases via localStorage.clear() and reset flow.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Playwright script confirmed: (1) Tab bar + Custom input+Add button fully visible at 375x600 (tabs at y=128, input at y=307, add-btn at y=310 — both within viewport). (2) Adding Smith Machine + 2 exercises works; card counter updates 0→1→2 exercises; form stays open across submits. (3) With Date.getDay()=1 override + reload, Today shows both Smith Machine Squat and Smith Machine Bench. With getDay()=2 they correctly disappear. (4) Day <select> default equals today's dayIdx (verified today=5→value=5). (5) Removing custom equipment cascades and empties homeshred:custom-exercises. (6) Reset All Data clears sessions, equipment, and custom-exercises keys; equipment list rebuilds to 6 defaults. (7) Preset barbell add still works. All data-testids referenced in the review request are correctly wired.",
+  "rca of the issue": "N/A — implementation verified working. Note that during first playwright run a stale element ref caused an intermittent 'NoneType' error after the 2nd submit; re-querying selectors between submits resolved this — not a product bug."
+}
